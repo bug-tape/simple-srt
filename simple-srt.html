@@ -1,0 +1,59 @@
+<html>
+	<head>
+		<script>
+			function getDate() {
+				let date = new Date();
+				date.setHours(0);
+				date.setMinutes(0);
+				date.setSeconds(0);
+				return date;
+			}
+			function formatTime(date) {
+				return `${String(date.getHours()).padStart(2, "0")}:${String(
+					date.getMinutes()
+				).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")},000`;
+			}
+
+			function generateSrt(text) {
+				let srt = "";
+				let count = 0;
+				text.split("。").forEach(line => {
+					let inTime = getDate();
+					let outTime = getDate();
+					inTime.setSeconds(5 * count);
+					outTime.setSeconds(5 * count + 4);
+					count++;
+					srt += `${count}\n${formatTime(inTime)} --> ${formatTime(
+						outTime
+					)}\n${line.trim()}\n\n`;
+				});
+				return srt;
+			}
+
+			window.addEventListener("load", () => {
+				console.log("load");
+				document.querySelector("#doit").addEventListener("click", () => {
+					console.log(document.querySelector("#in"));
+					console.log(document.querySelector("#out"));
+					let text = document.querySelector("#in").value;
+					document.querySelector("#out").value = generateSrt(text);
+				});
+			});
+		</script>
+		<style>
+			body {
+				display: flex;
+			}
+			#in,
+			#out {
+				height: 600px;
+				width: 50%;
+			}
+		</style>
+	</head>
+	<body>
+		<textarea id="in"></textarea>
+		<button id="doit">Do it</button>
+		<textarea id="out"></textarea>
+	</body>
+</html>
