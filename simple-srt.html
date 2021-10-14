@@ -19,25 +19,38 @@
 				return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 			}
 
-			function* getLines(text, separators, length) {
-				const separatorRegEx = new RegExp(`[${escapeRegExp(separators)}]`);
-				let line = "";
-				for (let element of text.split(separatorRegEx)) {
-					console.info(line, element);
-					element = element.trim();
-					if (line.length + element.length > length && line !== "") {
-						yield line;
-						line = "";
+			function* getLines(text, hardSeparators, softSeparators, length) {
+				const hardSeparatorRegEx = new RegExp(
+					`[${escapeRegExp(hardSeparators)}]`
+				);
+				const softSeparatorRegEx = new RegExp(
+					`[${escapeRegExp(softSeparators)}]`
+				);
+
+				for (let segment of text.split(hardSeparatorRegEx)) {
+					let line = "";
+					for (let element of segment.split(softSeparatorRegEx)) {
+						console.info(line, element);
+						element = element.trim();
+						if (line.length + element.length > length && line !== "") {
+							yield line;
+							line = "";
+						}
+						line += " " + element;
 					}
-					line += " " + element;
+					yield line;
 				}
-				yield line;
 			}
 
-			function generateSrt(text, separators, length) {
+			function generateSrt(text, hardSeparators, softSeparators, length) {
 				let srt = "";
 				let count = 0;
-				for (const line of getLines(text, separators, length)) {
+				for (const line of getLines(
+					text,
+					hardSeparators,
+					softSeparators,
+					length
+				)) {
 					let inTime = getDate();
 					let outTime = getDate();
 					inTime.setSeconds(5 * count);
@@ -53,11 +66,15 @@
 			window.addEventListener("load", () => {
 				document.querySelector("#doit").addEventListener("click", () => {
 					const text = document.querySelector("#in").value;
-					const separators = document.querySelector("#separators").value;
+					const hardSeparators =
+						document.querySelector("#hard-separators").value;
+					const softSeparators =
+						document.querySelector("#soft-separators").value;
 					const length = document.querySelector("#length").value;
 					document.querySelector("#out").value = generateSrt(
 						text,
-						separators,
+						hardSeparators,
+						softSeparators,
 						length
 					);
 				});
@@ -87,8 +104,12 @@
 	<body>
 		<div class="command">
 			<label>
-				Separators:
-				<input id="separators" />
+				Hard Separators:
+				<input id="hard-separators" />
+			</label>
+			<label>
+				Soft Separators:
+				<input id="soft-separators" />
 			</label>
 			<label>
 				Max. Length:
