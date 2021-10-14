@@ -30,7 +30,6 @@
 				for (let segment of text.split(hardSeparatorRegEx)) {
 					let line = "";
 					for (let element of segment.split(softSeparatorRegEx)) {
-						console.info(line, element);
 						element = element.trim();
 						if (line.length + element.length > length && line !== "") {
 							yield line;
