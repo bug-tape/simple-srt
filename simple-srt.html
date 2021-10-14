@@ -8,17 +8,36 @@
 				date.setSeconds(0);
 				return date;
 			}
+
 			function formatTime(date) {
 				return `${String(date.getHours()).padStart(2, "0")}:${String(
 					date.getMinutes()
 				).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")},000`;
 			}
 
-			function generateSrt(text, separators) {
+			function escapeRegExp(string) {
+				return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+			}
+
+			function* getLines(text, separators, length) {
+				const separatorRegEx = new RegExp(`[${escapeRegExp(separators)}]`);
+				let line = "";
+				for (let element of text.split(separatorRegEx)) {
+					console.info(line, element);
+					element = element.trim();
+					if (line.length + element.length > length && line !== "") {
+						yield line;
+						line = "";
+					}
+					line += " " + element;
+				}
+				yield line;
+			}
+
+			function generateSrt(text, separators, length) {
 				let srt = "";
 				let count = 0;
-				let separatorRegEx = new RegExp(`[${separators}]`);
-				text.split(separatorRegEx).forEach(line => {
+				for (const line of getLines(text, separators, length)) {
 					let inTime = getDate();
 					let outTime = getDate();
 					inTime.setSeconds(5 * count);
@@ -27,15 +46,20 @@
 					srt += `${count}\n${formatTime(inTime)} --> ${formatTime(
 						outTime
 					)}\n${line.trim()}\n\n`;
-				});
+				}
 				return srt;
 			}
 
 			window.addEventListener("load", () => {
 				document.querySelector("#doit").addEventListener("click", () => {
-					let text = document.querySelector("#in").value;
-					let separators = document.querySelector("#separators").value;
-					document.querySelector("#out").value = generateSrt(text, separators);
+					const text = document.querySelector("#in").value;
+					const separators = document.querySelector("#separators").value;
+					const length = document.querySelector("#length").value;
+					document.querySelector("#out").value = generateSrt(
+						text,
+						separators,
+						length
+					);
 				});
 			});
 		</script>
@@ -65,6 +89,10 @@
 			<label>
 				Separators:
 				<input id="separators" />
+			</label>
+			<label>
+				Max. Length:
+				<input id="length" value="30" />
 			</label>
 			<button id="doit">Do it</button>
 		</div>
