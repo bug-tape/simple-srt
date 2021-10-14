@@ -14,10 +14,11 @@
 				).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")},000`;
 			}
 
-			function generateSrt(text) {
+			function generateSrt(text, separators) {
 				let srt = "";
 				let count = 0;
-				text.split("。").forEach(line => {
+				let separatorRegEx = new RegExp(`[${separators}]`);
+				text.split(separatorRegEx).forEach(line => {
 					let inTime = getDate();
 					let outTime = getDate();
 					inTime.setSeconds(5 * count);
@@ -31,29 +32,49 @@
 			}
 
 			window.addEventListener("load", () => {
-				console.log("load");
 				document.querySelector("#doit").addEventListener("click", () => {
-					console.log(document.querySelector("#in"));
-					console.log(document.querySelector("#out"));
 					let text = document.querySelector("#in").value;
-					document.querySelector("#out").value = generateSrt(text);
+					let separators = document.querySelector("#separators").value;
+					document.querySelector("#out").value = generateSrt(text, separators);
 				});
 			});
 		</script>
 		<style>
-			body {
+			.command {
+				height: 2rem;
+				text-align: center;
+			}
+			.container {
 				display: flex;
+				flex-wrap: wrap;
+				height: calc(100vh - 2rem);
+			}
+			.half {
+				padding: 1rem;
+				flex-grow: 1;
 			}
 			#in,
 			#out {
-				height: 600px;
-				width: 50%;
+				width: 100%;
+				height: 100%;
 			}
 		</style>
 	</head>
 	<body>
-		<textarea id="in"></textarea>
-		<button id="doit">Do it</button>
-		<textarea id="out"></textarea>
+		<div class="command">
+			<label>
+				Separators:
+				<input id="separators" />
+			</label>
+			<button id="doit">Do it</button>
+		</div>
+		<div class="container">
+			<div class="half">
+				<textarea id="in"></textarea>
+			</div>
+			<div class="half">
+				<textarea id="out"></textarea>
+			</div>
+		</div>
 	</body>
 </html>
