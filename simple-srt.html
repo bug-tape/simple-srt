@@ -41,7 +41,13 @@
 				}
 			}
 
-			function generateSrt(text, hardSeparators, softSeparators, length) {
+			function generateSrt(
+				text,
+				hardSeparators,
+				softSeparators,
+				length,
+				duration
+			) {
 				let srt = "";
 				let count = 0;
 				for (const line of getLines(
@@ -52,8 +58,8 @@
 				)) {
 					let inTime = getDate();
 					let outTime = getDate();
-					inTime.setSeconds(5 * count);
-					outTime.setSeconds(5 * count + 4);
+					inTime.setSeconds(duration * count);
+					outTime.setSeconds(duration * count + (duration - 1));
 					count++;
 					srt += `${count}\n${formatTime(inTime)} --> ${formatTime(
 						outTime
@@ -69,12 +75,14 @@
 						document.querySelector("#hard-separators").value;
 					const softSeparators =
 						document.querySelector("#soft-separators").value;
-					const length = document.querySelector("#length").value;
+					const length = parseInt(document.querySelector("#length").value);
+					const duration = parseInt(document.querySelector("#duration").value);
 					document.querySelector("#out").value = generateSrt(
 						text,
 						hardSeparators,
 						softSeparators,
-						length
+						length,
+						duration
 					);
 				});
 			});
@@ -112,7 +120,11 @@
 			</label>
 			<label>
 				Max. Length:
-				<input id="length" value="30" />
+				<input id="length" value="30" type="number" />
+			</label>
+			<label>
+				Duration:
+				<input id="duration" value="3" type="number" />
 			</label>
 			<button id="doit">Do it</button>
 		</div>
