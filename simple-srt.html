@@ -19,7 +19,13 @@
 				return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 			}
 
-			function* getLines(text, hardSeparators, softSeparators, length) {
+			function* getLines(
+				text,
+				hardSeparators,
+				softSeparators,
+				softSeparatorSpaces,
+				length
+			) {
 				const hardSeparatorRegEx = new RegExp(
 					`[${escapeRegExp(hardSeparators)}]`
 				);
@@ -35,7 +41,7 @@
 							yield line;
 							line = "";
 						}
-						line += " " + element;
+						line += "".padStart(softSeparatorSpaces, " ") + element;
 					}
 					yield line;
 				}
@@ -45,6 +51,7 @@
 				text,
 				hardSeparators,
 				softSeparators,
+				softSeparatorSpaces,
 				length,
 				duration
 			) {
@@ -54,6 +61,7 @@
 					text,
 					hardSeparators,
 					softSeparators,
+					softSeparatorSpaces,
 					length
 				)) {
 					let inTime = getDate();
@@ -75,12 +83,16 @@
 						document.querySelector("#hard-separators").value;
 					const softSeparators =
 						document.querySelector("#soft-separators").value;
+					const softSeparatorSpaces = parseInt(
+						document.querySelector("#soft-seprarator-spaces").value
+					);
 					const length = parseInt(document.querySelector("#length").value);
 					const duration = parseInt(document.querySelector("#duration").value);
 					document.querySelector("#out").value = generateSrt(
 						text,
 						hardSeparators,
 						softSeparators,
+						softSeparatorSpaces,
 						length,
 						duration
 					);
@@ -117,6 +129,10 @@
 			<label>
 				Soft Separators:
 				<input id="soft-separators" />
+			</label>
+			<label>
+				Soft Separator Spaces:
+				<input id="soft-seprarator-spaces" value="2" type="number" />
 			</label>
 			<label>
 				Max. Length:
